@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "AutoHelp AI — автомобильный помощник",
+  "short_name": "AutoHelp AI",
+  "description": "ИИ-диагностика автомобилей и автомобильные калькуляторы",
+  "lang": "ru",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#091321",
+  "theme_color": "#0b1422",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
