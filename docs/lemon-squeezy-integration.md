@@ -24,3 +24,11 @@ Status: preparation only. Payments are not active.
 - NEXT_PUBLIC_CHECKOUT_URL (public hosted checkout URL, only if applicable to the eventual framework)
 
 Do not deploy this as a working integration until the application framework and Lemon Squeezy product details are verified.
+
+## Netlify checkout handoff (implemented)
+- The endpoint `/.netlify/functions/checkout` redirects GET requests to the official hosted checkout URL.
+- Set `LEMONSQUEEZY_CHECKOUT_URL` in Netlify Site configuration > Environment variables (not in GitHub).
+- Use the exact checkout link from the subscription variant in your Lemon Squeezy dashboard.
+- If unset, the endpoint returns HTTP 503 instead of accepting a payment.
+- This endpoint does **not** verify a payment or unlock paid features. A verified webhook, persistent account database, and access-control implementation are still required.
+- The Netlify deployment must be linked to this GitHub repository for commits to appear on the live site.
