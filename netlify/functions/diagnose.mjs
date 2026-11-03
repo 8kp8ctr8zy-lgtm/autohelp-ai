@@ -55,16 +55,16 @@ export default async (request) => {
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
-        Authorization: \`Bearer \${apiKey}\`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
         instructions: SYSTEM_PROMPT,
-        input: \`Автомобиль: \${vehicle}
-Пробег: \${mileage || "не указан"}
+        input: `Автомобиль: ${vehicle}
+Пробег: ${mileage || "не указан"}
 Симптомы и обстоятельства:
-\${symptoms}\`,
+${symptoms}`,
         max_output_tokens: 1100,
         store: false
       })
