@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1422">
+<title>AUTOHELP AI — автомобильный помощник</title>
+<style>
+:root{--bg:#091321;--panel:#122238;--panel2:#182d45;--line:#29435f;--blue:#12a8f5;--cyan:#58d4ff;--text:#f3f8ff;--muted:#a9bdd2;--green:#31d28b;--amber:#ffbf47}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -10%,#163a5b 0,transparent 38%),var(--bg);color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:88px}
+header{padding:18px 18px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#091321ed;backdrop-filter:blur(14px);z-index:5;border-bottom:1px solid #1d344b}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:39px;height:39px;border-radius:13px;background:linear-gradient(145deg,#20c1ff,#0874c5);display:grid;place-items:center;font-weight:900;font-size:21px;box-shadow:0 5px 20px #078dd755}.brand b{font-size:17px;letter-spacing:.4px}.brand small{display:block;color:var(--cyan);font-size:10px;letter-spacing:1.4px;margin-top:2px}
+main{max-width:760px;margin:auto;padding:18px 15px 24px}.hero{padding:20px;border-radius:23px;background:linear-gradient(130deg,#153754,#102238 60%,#0d1b2c);border:1px solid #2d5271;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:190px;height:190px;border-radius:50%;right:-80px;top:-75px;background:#0da7f433;filter:blur(3px)}.eyebrow{color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:1.5px}.hero h1{font-size:26px;line-height:1.12;margin:9px 0}.hero p{color:#c1d3e5;max-width:420px;line-height:1.45;margin:0}
+.section-title{font-size:18px;margin:24px 2px 12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.tile{border:1px solid var(--line);background:linear-gradient(150deg,#172d45,#102035);border-radius:17px;padding:15px;min-height:122px;text-align:left;color:var(--text);cursor:pointer}.tile:active,.btn:active{transform:scale(.98)}.ico{font-size:25px;margin-bottom:11px}.tile b{display:block;font-size:14px;margin-bottom:5px}.tile small{color:var(--muted);line-height:1.35;display:block}
+.card{background:linear-gradient(160deg,#14273d,#101d30);border:1px solid var(--line);border-radius:19px;padding:17px;margin-top:12px}.card h2{font-size:19px;margin:0 0 5px}.sub{color:var(--muted);font-size:13px;margin:0 0 17px;line-height:1.4}
+label{display:block;color:#c8d9e9;font-size:13px;margin:13px 0 7px}input,select,textarea{width:100%;background:#091726;border:1px solid #35516d;border-radius:12px;padding:13px;color:white;font:inherit;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #20baff20}textarea{min-height:92px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{width:100%;border:0;border-radius:13px;padding:14px 16px;margin-top:17px;background:linear-gradient(100deg,#0788d7,#13b8f5);color:white;font-weight:800;font-size:15px;cursor:pointer}.btn.secondary{background:#233a54;border:1px solid #45617d}.result{margin-top:15px;padding:15px;border-radius:14px;background:#0a1a2b;border:1px solid #245274;display:none}.result .big{font-size:27px;font-weight:850;color:var(--cyan);margin:4px 0 10px}.metric{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #21364b;color:var(--muted);font-size:13px}.metric b{color:white;text-align:right}.notice{font-size:12px;color:#9fb4c8;line-height:1.45;margin-top:13px}.tag{display:inline-block;color:#8de5ff;background:#0b3b59;border:1px solid #1d6589;padding:5px 9px;border-radius:30px;font-size:11px;font-weight:700}
+.back{background:none;border:0;color:var(--cyan);font-size:14px;padding:5px 0 14px;cursor:pointer}.hidden{display:none!important}.bottom{position:fixed;bottom:0;left:0;right:0;background:#091321f2;border-top:1px solid #294058;display:flex;justify-content:space-around;padding:10px 6px calc(10px + env(safe-area-inset-bottom));z-index:8;backdrop-filter:blur(16px)}.bottom button{background:none;border:0;color:#91a8bf;font-size:10px;display:grid;gap:4px;justify-items:center;min-width:58px}.bottom button span{font-size:19px}.bottom button.active{color:var(--cyan)}
+footer{text-align:center;color:#728aa2;font-size:11px;padding:22px 10px}
+@media(min-width:650px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero h1{font-size:34px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">A</div><div><b>AUTOHELP <span style="color:#27baff">AI</span></b><small>YOUR VEHICLE. YOUR INTELLIGENCE.</small></div></div><span class="tag">BETA</span></header>
+<main>
+<section id="home">
+ <div class="hero"><div class="eyebrow">УНИВЕРСАЛЬНЫЙ АВТОМОБИЛЬНЫЙ ПОМОЩНИК</div><h1>Техника под контролем.<br>Решения — понятны.</h1><p>Инструменты для водителей, дальнобойщиков и автосервисов — в одном месте.</p></div>
+ <h2 class="section-title">Выбери инструмент</h2>
+ <div class="grid">
+  <button class="tile" onclick="show('fuel')"><div class="ico">⛽</div><b>Расход топлива</b><small>Литры, стоимость поездки и цена километра</small></button>
+  <button class="tile" onclick="show('truck')"><div class="ico">🚛</div><b>Грузовой помощник</b><small>Остаток топлива в одном или двух баках</small></button>
+  <button class="tile" onclick="show('trip')"><div class="ico">🛣️</div><b>Стоимость рейса</b><small>Топливо и расходы на километр</small></button>
+  <button class="tile" onclick="show('repair')"><div class="ico">🔧</div><b>Расчёт ремонта</b><small>Работы, запчасти и итоговая стоимость</small></button>
+  <button class="tile" onclick="show('ai')"><div class="ico">🤖</div><b>AI-диагностика</b><small>Опиши симптомы и получи план проверок</small></button>
+  <button class="tile" onclick="show('diagnostic')"><div class="ico">🩺</div><b>Быстрая подсказка</b><small>Общие направления проверки по симптому</small></button>
+  <button class="tile" onclick="show('about')"><div class="ico">📘</div><b>О сервисе</b><small>Возможности и планы AUTOHELP AI</small></button>
+ </div>
+ <div class="card"><span class="tag">ПЕРВАЯ ВЕРСИЯ</span><h2 style="margin-top:12px">Просто. Быстро. С телефона.</h2><p class="sub" style="margin:8px 0 0">Калькуляторы работают прямо в браузере. Вводимые значения не отправляются на сервер.</p></div>
+</section>
+
+<section id="fuel" class="hidden">
+ <button class="back" onclick="show('home')">← На главную</button><div class="card"><h2>⛽ Расход топлива</h2><p class="sub">Посчитай, сколько топлива и денег потребуется на поездку.</p>
+ <label>Расстояние, км</label><input id="f_dist" type="number" inputmode="decimal" value="500" min="0">
+ <div class="row"><div><label>Расход, л / 100 км</label><input id="f_rate" type="number" inputmode="decimal" value="10" min="0"></div><div><label>Цена за литр, ₸</label><input id="f_price" type="number" inputmode="decimal" value="250" min="0"></div></div>
+ <button class="btn" onclick="calcFuel()">Рассчитать</button><div id="f_out" class="result"></div></div>
+</section>
+
+<section id="truck" class="hidden">
+ <button class="back" onclick="show('home')">← На главную</button><div class="card"><h2>🚛 Остаток топлива в баках</h2><p class="sub">Для тягачей с одним или двумя баками. Укажи фактический остаток или уровень в процентах.</p>
+ <div class="row"><div><label>Объём бака №1, л</label><input id="t_cap1" type="number" inputmode="decimal" value="760"></div><div><label>Остаток в баке №1, %</label><input id="t_pct1" type="number" inputmode="decimal" value="50"></div></div>
+ <div class="row"><div><label>Объём бака №2, л</label><input id="t_cap2" type="number" inputmode="decimal" value="600"></div><div><label>Остаток в баке №2, %</label><input id="t_pct2" type="number" inputmode="decimal" value="50"></div></div>
+ <label>Цена дизеля, ₸/л (необязательно)</label><input id="t_price" type="number" inputmode="decimal" value="300">
+ <button class="btn" onclick="calcTruck()">Посчитать остаток</button><div id="t_out" class="result"></div><p class="notice">Расчёт приблизительный: форма бака, датчики уровня, наклон машины и перелив между баками могут влиять на показания.</p></div>
+</section>
+
+<section id="trip" class="hidden">
+ <button class="back" onclick="show('home')">← На главную</button><div class="card"><h2>🛣️ Стоимость рейса</h2><p class="sub">Оцени топливные затраты и себестоимость километра.</p>
+ <label>Длина рейса, км</label><input id="r_dist" type="number" inputmode="decimal" value="1200">
+ <div class="row"><div><label>Расход, л / 100 км</label><input id="r_rate" type="number" inputmode="decimal" value="32"></div><div><label>Цена дизеля, ₸/л</label><input id="r_price" type="number" inputmode="decimal" value="300"></div></div>
+ <label>Прочие расходы на рейс, ₸</label><input id="r_extra" type="number" inputmode="decimal" value="0">
+ <button class="btn" onclick="calcTrip()">Рассчитать рейс</button><div id="r_out" class="result"></div></div>
+</section>
+
+<section id="repair" class="hidden">
+ <button class="back" onclick="show('home')">← На главную</button><div class="card"><h2>🔧 Расчёт ремонта</h2><p class="sub">Сложи стоимость работ и запчастей. Это предварительная смета, не заказ-наряд.</p>
+ <label>Работы, ₸</label><input id="s_work" type="number" inputmode="decimal" value="15000">
+ <label>Запчасти, ₸</label><input id="s_parts" type="number" inputmode="decimal" value="25000">
+ <label>Дополнительные расходы, ₸</label><input id="s_extra" type="number" inputmode="decimal" value="0">
+ <button class="btn" onclick="calcRepair()">Посчитать стоимость</button><div id="s_out" class="result"></div></div>
+</section>
+
+<section id="ai" class="hidden">
+ <button class="back" onclick="show('home')">← На главную</button><div class="card"><h2>🤖 AI-диагностика</h2><p class="sub">Опиши автомобиль и симптомы. Чем точнее детали, тем полезнее предварительный разбор.</p>
+ <label>Автомобиль</label><input id="ai_vehicle" maxlength="160" placeholder="Например: BMW E60 545i, 2003 год">
+ <label>Пробег (необязательно)</label><input id="ai_mileage" maxlength="40" placeholder="Например: 246 000 км">
+ <label>Симптомы и обстоятельства</label><textarea id="ai_symptoms" maxlength="3000" placeholder="Когда появляется проблема? На холодную или горячую? Есть ли дым, шум, запах, лампы или коды ошибок?"></textarea>
+ <button class="btn" id="ai_btn" onclick="askAI()">Получить разбор AI</button><div id="ai_out" class="result"></div>
+ <p class="notice">AI предлагает только предварительные гипотезы, а не подтверждённый диагноз. Не выполняй опасные проверки самостоятельно. При проблемах с тормозами, рулевым управлением, перегреве, утечке топлива или красных предупреждениях остановись в безопасном месте и обратись к специалисту. Не вводи персональные данные.</p></div>
+</section>
+
+<section id="diagnostic" class="hidden">
+ <button class="back" onclick="show('home')">← На главную</button><div class="card"><h2>🩺 Подсказка по неисправности</h2><p class="sub">Выбери симптом — покажем общие направления проверки. Это не AI-диагностика и не замена осмотра специалистом.</p>
+ <label>Что наблюдаешь?</label><select id="d_symptom"><option value="smoke">Дым из выхлопной трубы</option><option value="start">Двигатель плохо запускается</option><option value="power">Потеря мощности</option><option value="heat">Перегрев двигателя</option><option value="brake">Проблема с тормозами</option><option value="noise">Необычный шум</option><option value="light">Горит Check Engine</option></select>
+ <label>Дополнительные детали (необязательно)</label><textarea id="d_note" placeholder="Например: дым только на горячем двигателе, запах, код ошибки..."></textarea>
+ <button class="btn" onclick="calcDiag()">Показать направления проверки</button><div id="d_out" class="result"></div>
+ <p class="notice">Если тормоза неисправны, двигатель перегревается, есть сильная утечка топлива/масла, красные предупреждения или дым в салоне — безопасно остановись и обратись за помощью. Не продолжай движение, если это может быть опасно.</p></div>
+</section>
+
+<section id="about" class="hidden">
+ <button class="back" onclick="show('home')">← На главную</button><div class="card"><h2>О AUTOHELP AI</h2><p class="sub">Универсальный автомобильный помощник для легковых автомобилей, грузовиков, водителей и СТО.</p>
+ <div class="metric"><span>Сейчас доступно</span><b>5 инструментов</b></div><div class="metric"><span>Работа калькуляторов</span><b>Офлайн в браузере</b></div><div class="metric"><span>AI-диагностика</span><b>Следующий этап</b></div><div class="metric"><span>Регистрация и оплата</span><b>Пока не подключены</b></div>
+ <p class="notice">Это ранний MVP-прототип. Он не подключён к серверу, платёжной системе, базам кодов неисправностей или внешнему AI API. Не вводи личные или конфиденциальные данные.</p></div>
+</section>
+<footer>AUTOHELP AI · BETA · Расчёты носят справочный характер</footer>
+</main>
+<nav class="bottom">
+<button class="active" id="navhome" onclick="show('home')"><span>⌂</span>Главная</button>
+<button onclick="show('ai')"><span>✧</span>AI-диагностика</button>
+<button onclick="show('fuel')"><span>▦</span>Расчёты</button>
+<button onclick="show('about')"><span>◉</span>Профиль</button>
+</nav>
+<script>
+const sections=['home','fuel','truck','trip','repair','ai','diagnostic','about'];
+function show(id){sections.forEach(s=>document.getElementById(s).classList.toggle('hidden',s!==id));document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));if(id==='home')document.getElementById('navhome').classList.add('active');window.scrollTo(0,0)}
+function num(id){return Number(document.getElementById(id).value)}
+async function askAI(){const vehicle=document.getElementById('ai_vehicle').value.trim(),mileage=document.getElementById('ai_mileage').value.trim(),symptoms=document.getElementById('ai_symptoms').value.trim(),btn=document.getElementById('ai_btn');if(!vehicle||!symptoms)return alert('Укажи автомобиль и опиши симптомы.');btn.disabled=true;btn.textContent='AI анализирует…';const out=document.getElementById('ai_out');out.style.display='block';out.textContent='Готовим предварительный разбор…';try{const r=await fetch('/.netlify/functions/diagnose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vehicle,mileage,symptoms})});const data=await r.json();if(!r.ok)throw new Error(data.error||'Не удалось получить ответ.');out.innerHTML='<div style="white-space:pre-wrap;line-height:1.55;color:#e6f2ff"></div>';out.firstElementChild.textContent=data.answer||'Ответ не получен.';}catch(e){out.textContent='Ошибка: '+e.message+' Если сайт только что обновлён, проверь настройки Netlify и наличие API-кредитов.';}finally{btn.disabled=false;btn.textContent='Получить разбор AI';}}
+function output(id,html){let el=document.getElementById(id);el.innerHTML=html;el.style.display='block'}
+function fmt(n){return Math.round(n).toLocaleString('ru-RU')}
+function calcFuel(){let d=num('f_dist'),r=num('f_rate'),p=num('f_price');if(d<=0||r<=0||p<=0)return alert('Введи положительные значения.');let l=d*r/100,c=l*p;output('f_out',`<div>Потребуется топлива</div><div class="big">${l.toFixed(1)} л</div><div class="metric"><span>Стоимость поездки</span><b>${fmt(c)} ₸</b></div><div class="metric"><span>Стоимость 1 км</span><b>${(c/d).toFixed(1)} ₸</b></div>`)}
+function calcTruck(){let c1=num('t_cap1'),p1=num('t_pct1'),c2=num('t_cap2'),p2=num('t_pct2'),price=num('t_price');if(c1<0||c2<0||p1<0||p1>100||p2<0||p2>100)return alert('Проверь объёмы баков и проценты от 0 до 100.');let a=c1*p1/100,b=c2*p2/100,total=a+b;output('t_out',`<div>Всего дизеля</div><div class="big">${total.toFixed(1)} л</div><div class="metric"><span>Бак №1</span><b>${a.toFixed(1)} л</b></div><div class="metric"><span>Бак №2</span><b>${b.toFixed(1)} л</b></div><div class="metric"><span>Стоимость остатка</span><b>${price>0?fmt(total*price)+' ₸':'не указана'}</b></div>`)}
+function calcTrip(){let d=num('r_dist'),r=num('r_rate'),p=num('r_price'),e=num('r_extra');if(d<=0||r<=0||p<=0||e<0)return alert('Проверь введённые значения.');let l=d*r/100,f=l*p,t=f+e;output('r_out',`<div>Ориентировочная стоимость рейса</div><div class="big">${fmt(t)} ₸</div><div class="metric"><span>Топливо</span><b>${l.toFixed(1)} л · ${fmt(f)} ₸</b></div><div class="metric"><span>Прочие расходы</span><b>${fmt(e)} ₸</b></div><div class="metric"><span>Себестоимость километра</span><b>${(t/d).toFixed(1)} ₸/км</b></div>`)}
+function calcRepair(){let w=num('s_work'),p=num('s_parts'),e=num('s_extra');if(w<0||p<0||e<0)return alert('Суммы не могут быть отрицательными.');let t=w+p+e;output('s_out',`<div>Предварительная смета</div><div class="big">${fmt(t)} ₸</div><div class="metric"><span>Работы</span><b>${fmt(w)} ₸</b></div><div class="metric"><span>Запчасти</span><b>${fmt(p)} ₸</b></div><div class="metric"><span>Дополнительно</span><b>${fmt(e)} ₸</b></div>`)}
+function calcDiag(){let v=document.getElementById('d_symptom').value,n=document.getElementById('d_note').value;let data={
+smoke:['Дым из выхлопной трубы','Уточни цвет дыма и условия появления. Возможные направления: система вентиляции картера, турбонаддув, попадание масла или охлаждающей жидкости в цилиндры, топливная система. Нужны осмотр и диагностика.'],
+start:['Трудный запуск','Проверь состояние аккумулятора и клемм, скорость прокрутки стартера, наличие топлива, ошибки системы управления двигателем. Для дизеля дополнительно проверяют свечи накала и давление топлива.'],
+power:['Потеря мощности','Возможные направления: фильтры, впуск и утечки воздуха, турбонаддув, топливное давление, датчики и выпускная система. Считать ошибки и проверить параметры под нагрузкой.'],
+heat:['Перегрев двигателя','Безопасно остановись и заглуши двигатель. Не открывай крышку горячей системы охлаждения. После остывания нужна проверка уровня и утечек охлаждающей жидкости, вентилятора, термостата и помпы.'],
+brake:['Проблема с тормозами','Не продолжай движение, если торможение изменилось, педаль проваливается, есть утечка или предупреждение тормозной системы. Нужна проверка тормозной жидкости, магистралей, колодок и суппортов.'],
+noise:['Необычный шум','Зафиксируй, когда шум возникает: на холодную, при разгоне, торможении или повороте. Источником могут быть навесное оборудование, подшипники, подвеска, трансмиссия или двигатель.'],
+light:['Горит Check Engine','Считай точный диагностический код OBD-II и условия появления ошибки. Не меняй детали только по лампе. При мигающем Check Engine или сильной тряске безопасно остановись и организуй диагностику.']};
+let a=data[v];output('d_out',`<div style="color:var(--cyan);font-weight:800">${a[0]}</div><p style="line-height:1.5;color:#d5e3ef">${a[1]}</p>${n?`<div class="metric"><span>Твои детали</span><b>${n.replace(/[&<>"]/g,' ')}</b></div>`:''}<p class="notice">Это общая справка, не диагноз. Для точного вывода нужны данные автомобиля, коды ошибок и проверка специалистом.</p>`)}
+</script>
+</body></html>
