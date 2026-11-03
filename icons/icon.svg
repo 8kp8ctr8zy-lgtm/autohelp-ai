@@ -1,1 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="108" fill="#091321"/><path d="M80 335l35-111c8-25 31-42 58-42h166c27 0 50 17 58 42l35 111" fill="none" stroke="#58d4ff" stroke-width="26" stroke-linecap="round"/><path d="M91 326h330v55c0 17-14 31-31 31H122c-17 0-31-14-31-31z" fill="#163a5b" stroke="#58d4ff" stroke-width="13"/><circle cx="149" cy="349" r="22" fill="#58d4ff"/><circle cx="363" cy="349" r="22" fill="#58d4ff"/><path d="M197 270h118" stroke="#58d4ff" stroke-width="15" stroke-linecap="round"/><text x="256" y="148" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="81" fill="white">AI</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#122b45"/><stop offset="1" stop-color="#050b16"/></linearGradient><linearGradient id="neon" x2="1" y2="0"><stop stop-color="#28b9f5"/><stop offset=".5" stop-color="#a3ecff"/><stop offset="1" stop-color="#28b9f5"/></linearGradient></defs>
+<rect width="512" height="512" rx="112" fill="url(#bg)"/>
+<circle cx="256" cy="231" r="173" fill="none" stroke="#1b4462" stroke-width="5"/>
+<path d="M86 318h340" stroke="#43cfff" stroke-width="5" opacity=".4"/>
+<path d="M97 293l32-63c11-21 27-30 52-34l55-10h66l55 10c25 4 41 13 52 34l30 63" fill="#0d1e31" stroke="url(#neon)" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M158 241l33-28 45-8h41l45 8 33 28" fill="none" stroke="#5acfff" stroke-width="7" opacity=".85"/>
+<path d="M105 292l48 11 46-4-17 25-65 2zM407 292l-48 11-46-4 17 25 65 2z" fill="#71dcff"/>
+<path d="M202 311h108" stroke="#77ddff" stroke-width="12" stroke-linecap="round"/>
+<path d="M132 350h248" stroke="#2e91bf" stroke-width="6" stroke-linecap="round"/>
+<text x="256" y="124" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="62" letter-spacing="4" fill="#e7f8ff">AUTO</text>
+<text x="256" y="431" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="60" letter-spacing="4" fill="#e8f8ff">HELP<tspan fill="#58d4ff"> AI</tspan></text>
+</svg>
