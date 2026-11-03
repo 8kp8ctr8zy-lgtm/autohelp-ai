@@ -35,6 +35,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
     });
+    window.autohelpSupabase = client;
     const { data, error } = await client.auth.getUser();
     if (error && error.name !== 'AuthSessionMissingError') throw error;
     updateUser(data?.user || null);
