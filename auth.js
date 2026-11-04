@@ -229,3 +229,21 @@ window.autohelpEnableServiceNotifications=async()=>{
  else alert('Уведомления не разрешены. Напоминания останутся в гараже.');
  }catch{alert('Браузер не разрешил включить уведомления.')}
 };
+
+window.autohelpRegisterPush=async()=>{
+ if(!client)return alert('Войди в аккаунт.');
+ if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window))return alert('Это устройство не поддерживает Web Push. На iPhone установи AutoHelp AI на экран «Домой» и открой его оттуда.');
+ if(!window.isSecureContext)return alert('Для push требуется HTTPS.');
+ try{
+ const {data:{user}}=await client.auth.getUser();if(!user)return alert('Сначала войди в аккаунт.');
+ const keyResponse=await fetch('/.netlify/functions/push-public-key');const keyData=await keyResponse.json();if(!keyResponse.ok||!keyData.publicKey)throw Error(keyData.error||'Серверный ключ Web Push пока не настроен.');
+ const permission=await Notification.requestPermission();if(permission!=='granted')return alert('Уведомления не разрешены.');
+ const registration=await navigator.serviceWorker.ready;
+ const bytes=Uint8Array.from(atob(keyData.publicKey.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+ const subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:bytes});
+ const json=subscription.toJSON();
+ const {error}=await client.from('push_subscriptions').upsert({user_id:user.id,endpoint:json.endpoint,p256dh:json.keys.p256dh,auth_secret:json.keys.auth},{onConflict:'endpoint'});
+ if(error)throw Error(error.message);
+ alert('Устройство зарегистрировано для push. Доставка напоминаний заработает после включения серверной рассылки.');
+ }catch(error){alert('Не удалось подключить push: '+error.message)}
+};
