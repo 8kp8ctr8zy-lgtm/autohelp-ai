@@ -1,18 +1,15 @@
-// Netlify Function: redirects to an approved Lemon Squeezy hosted checkout.
-// Set LEMONSQUEEZY_CHECKOUT_URL in Netlify environment variables.
-// This is a checkout handoff, NOT a subscription entitlement check.
+// Redirect to the public AutoHelp AI PRO Lemon Squeezy checkout.
+// Optional Netlify env override: LEMONSQUEEZY_CHECKOUT_URL.
+// This endpoint does not grant PRO access; verified webhooks are required.
+const DEFAULT_CHECKOUT_URL = 'https://autohelp-ai.lemonsqueezy.com/checkout/buy/8baac202-95f1-4b01-abb5-e3050d83f4bd';
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'GET') {
-    return { statusCode: 405, headers: { Allow: 'GET', 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Method not allowed' }) };
-  }
-  const raw = process.env.LEMONSQUEEZY_CHECKOUT_URL;
-  if (!raw) {
-    return { statusCode: 503, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, body: JSON.stringify({ error: 'Подписка пока недоступна: магазин ещё не настроен.' }) };
+    return { statusCode: 405, headers: { Allow: 'GET' }, body: 'Method not allowed' };
   }
   let url;
-  try { url = new URL(raw); } catch (_) {
-    return { statusCode: 500, body: 'Invalid checkout configuration' };
-  }
+  try { url = new URL(process.env.LEMONSQUEEZY_CHECKOUT_URL || DEFAULT_CHECKOUT_URL); }
+  catch (_) { return { statusCode: 500, body: 'Invalid checkout configuration' }; }
   if (url.protocol !== 'https:' || !(url.hostname === 'lemonsqueezy.com' || url.hostname.endsWith('.lemonsqueezy.com'))) {
     return { statusCode: 500, body: 'Invalid checkout host' };
   }
