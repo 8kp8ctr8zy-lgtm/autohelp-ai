@@ -9,13 +9,14 @@ async function refreshProStatus(user) {
   const target = document.getElementById('pro_status');
   if (!target) return;
   const request = ++subscriptionRequest;
-  if (!user || !client) { target.textContent = 'PRO: войдите, чтобы проверить подписку'; return; }
+  if (!user || !client) { target.textContent = 'PRO: войдите, чтобы проверить подписку'; updatePlanDetails(null); return; }
   target.textContent = 'PRO: проверяем подписку…';
   const { data, error } = await client.from('pro_subscriptions').select('status,ends_at,renews_at').eq('user_id',user.id);
   if (request !== subscriptionRequest) return;
-  if (error) { target.textContent = 'PRO: не удалось проверить подписку'; return; }
+  if (error) { target.textContent = 'PRO: не удалось проверить подписку'; updatePlanDetails(null); return; }
   const active = (data || []).some(s => ['active','on_trial'].includes(s.status) && (!s.ends_at || new Date(s.ends_at).getTime() > Date.now()));
   target.textContent = active ? '⭐ PRO активен' : 'PRO не активен — доступна бесплатная версия';
+  updatePlanDetails(active ? (data||[]).find(s=>['active','on_trial'].includes(s.status)) : null);
 }
 
 function showError(message) { status.textContent = message; }
@@ -66,7 +67,7 @@ async function refreshAccountData(user) {
  const vehicleList = document.getElementById('vehicle_list');
  const historyList = document.getElementById('history_list');
  if (!vehicleList || !historyList) return;
- if (!user || !client) { vehicleList.replaceChildren(); historyList.replaceChildren(); accountMessage('vehicle_message','Войди, чтобы сохранять автомобили.'); accountMessage('history_message','Войди, чтобы видеть историю.'); return; }
+ if (!user || !client) { updateGaragePicker([]); vehicleList.replaceChildren(); historyList.replaceChildren(); updateGaragePicker(vehicles.data||[]); accountMessage('vehicle_message','Войди, чтобы сохранять автомобили.'); accountMessage('history_message','Войди, чтобы видеть историю.'); return; }
  accountMessage('vehicle_message','Загружаем автомобили…'); accountMessage('history_message','Загружаем историю…');
  const [vehicles,history] = await Promise.all([
   client.from('vehicles').select('id,name,year').eq('user_id',user.id).order('created_at',{ascending:false}).limit(30),
@@ -110,3 +111,21 @@ window.autohelpSaveDiagnosis = async (vehicle,mileage,symptoms,answer) => {
  if(error){console.warn('History save failed',error.message);return;}
  await refreshAccountData(user);
 };
+
+function updatePlanDetails(subscription) {
+ const plan=document.getElementById('pro_plan_label'),renewal=document.getElementById('pro_renewal');
+ if(plan)plan.textContent=subscription?'PRO активен':'Бесплатный';
+ if(renewal)renewal.textContent=subscription?.renews_at?new Date(subscription.renews_at).toLocaleDateString('ru-RU'):'—';
+}
+window.autohelpChooseVehicle = (id) => {
+ const selected=window.autohelpGarage?.find(v=>v.id===id);
+ if(selected)document.getElementById('ai_vehicle').value=selected.name+(selected.year?', '+selected.year:'');
+};
+function updateGaragePicker(vehicles) {
+ window.autohelpGarage=vehicles;
+ const picker=document.getElementById('ai_saved_vehicle');if(!picker)return;
+ const current=picker.value;picker.replaceChildren();
+ const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Ввести автомобиль вручную';picker.append(placeholder);
+ for(const v of vehicles){const opt=document.createElement('option');opt.value=v.id;opt.textContent=v.name+(v.year?' · '+v.year:'');picker.append(opt);}
+ if(vehicles.some(v=>v.id===current))picker.value=current;
+}
