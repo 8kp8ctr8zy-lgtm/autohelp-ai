@@ -67,14 +67,14 @@ async function refreshAccountData(user) {
  const vehicleList = document.getElementById('vehicle_list');
  const historyList = document.getElementById('history_list');
  if (!vehicleList || !historyList) return;
- if (!user || !client) { updateGaragePicker([]); vehicleList.replaceChildren(); historyList.replaceChildren(); updateGaragePicker(vehicles.data||[]); accountMessage('vehicle_message','Войди, чтобы сохранять автомобили.'); accountMessage('history_message','Войди, чтобы видеть историю.'); return; }
+ if (!user || !client) { updateGaragePicker([]); vehicleList.replaceChildren(); historyList.replaceChildren(); accountMessage('vehicle_message','Войди, чтобы сохранять автомобили.'); accountMessage('history_message','Войди, чтобы видеть историю.'); return; }
  accountMessage('vehicle_message','Загружаем автомобили…'); accountMessage('history_message','Загружаем историю…');
  const [vehicles,history] = await Promise.all([
   client.from('vehicles').select('id,name,year').eq('user_id',user.id).order('created_at',{ascending:false}).limit(30),
   client.from('diagnostic_history').select('id,vehicle,symptoms,answer,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20)
  ]);
  if(request !== accountRequest) return;
- vehicleList.replaceChildren(); historyList.replaceChildren();
+ vehicleList.replaceChildren(); historyList.replaceChildren(); updateGaragePicker(vehicles.data||[]);
  accountMessage('vehicle_message',vehicles.error?'Ошибка загрузки автомобилей':vehicles.data.length?'':'Автомобилей пока нет.');
  accountMessage('history_message',history.error?'Ошибка загрузки истории':history.data.length?'':'История пока пустая.');
  for(const v of vehicles.data || []) {
