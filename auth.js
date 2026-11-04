@@ -71,7 +71,7 @@ async function refreshAccountData(user) {
  if (!user || !client) { updateGaragePicker([]); updateServicePicker([]); document.getElementById("service_list")?.replaceChildren(); vehicleList.replaceChildren(); historyList.replaceChildren(); accountMessage('vehicle_message','Войди, чтобы сохранять автомобили.'); accountMessage('history_message','Войди, чтобы видеть историю.'); return; }
  accountMessage('vehicle_message','Загружаем автомобили…'); accountMessage('history_message','Загружаем историю…');
  const [vehicles,history] = await Promise.all([
-  client.from('vehicles').select('id,name,year').eq('user_id',user.id).order('created_at',{ascending:false}).limit(30),
+  client.from('vehicles').select('id,name,year,current_odometer_km').eq('user_id',user.id).order('created_at',{ascending:false}).limit(30),
   client.from('diagnostic_history').select('id,vehicle,symptoms,answer,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20)
  ]);
  if(request !== accountRequest) return;
@@ -137,6 +137,7 @@ function updateServicePicker(vehicles){
  const previous=select.value;select.replaceChildren();
  for(const v of vehicles){const option=document.createElement('option');option.value=v.id;option.textContent=v.name+(v.year?' · '+v.year:'');select.append(option)}
  if(vehicles.some(v=>v.id===previous))select.value=previous;
+ select.onchange=()=>{const v=window.autohelpGarage?.find(x=>x.id===select.value);document.getElementById('garage_current_odometer').value=v?.current_odometer_km??''};select.onchange();
 }
 async function refreshServiceRecords(user){
  const list=document.getElementById('service_list'),status=document.getElementById('service_status');if(!list)return;
@@ -159,7 +160,7 @@ async function refreshServiceRecords(user){
  for(const record of data){if(!byVehicle.has(record.vehicle_id))byVehicle.set(record.vehicle_id,[]);byVehicle.get(record.vehicle_id).push(record)}
  const notices=[];
  for(const [id,records] of byVehicle){
- const local=Number(localStorage.getItem('autohelp_current_mileage_'+user.id+'_'+id));const current=Math.max(...records.map(x=>x.odometer_km).filter(Number.isFinite),Number.isFinite(local)?local:0,0);
+ const saved=window.autohelpGarage?.find(v=>v.id===id)?.current_odometer_km;const current=Math.max(...records.map(x=>x.odometer_km).filter(Number.isFinite),Number.isFinite(saved)?saved:0,0);
  if(!current)continue;
  const upcoming=records.filter(x=>Number.isFinite(x.next_service_km)&&x.next_service_km>=0).sort((a,b)=>b.service_date.localeCompare(a.service_date))[0];
  if(!upcoming)continue;
@@ -212,6 +213,8 @@ window.autohelpSaveCurrentMileage=async()=>{
  const id=document.getElementById('service_vehicle').value,value=Number(document.getElementById('garage_current_odometer').value),status=document.getElementById('garage_mileage_status');
  if(!id||!document.getElementById('garage_current_odometer').value||!Number.isInteger(value)||value<0||value>3000000){status.textContent='Укажи корректный пробег и автомобиль.';return}
  const {data:{user}}=await client.auth.getUser();if(!user){status.textContent='Войди в аккаунт.';return}
- const key='autohelp_current_mileage_'+user.id+'_'+id;
- try{localStorage.setItem(key,String(value));status.textContent='Текущий пробег сохранён на этом устройстве: '+value+' км.';void refreshServiceRecords(user)}catch{status.textContent='Не удалось сохранить пробег на устройстве.'}
+ const {error}=await client.from('vehicles').update({current_odometer_km:value}).eq('id',id).eq('user_id',user.id);
+ if(error){status.textContent='Ошибка сохранения: '+error.message;return}
+ const vehicle=window.autohelpGarage?.find(v=>v.id===id);if(vehicle)vehicle.current_odometer_km=value;
+ status.textContent='Пробег сохранён в аккаунте: '+value+' км. Доступен на других устройствах.';void refreshServiceRecords(user);
 };
