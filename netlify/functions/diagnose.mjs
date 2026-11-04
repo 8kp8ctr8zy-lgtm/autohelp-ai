@@ -46,6 +46,7 @@ export default async (request) => {
     return new Response(JSON.stringify({ error: "Некорректные данные." }), { status: 400, headers });
   }
 
+  const language = ["ru", "kk", "en"].includes(body.language) ? body.language : "ru";
   const vehicle = typeof body.vehicle === "string" ? body.vehicle.trim() : "";
   const mileage = typeof body.mileage === "string" ? body.mileage.trim() : "";
   const symptoms = typeof body.symptoms === "string" ? body.symptoms.trim() : "";
@@ -67,7 +68,7 @@ export default async (request) => {
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        instructions: SYSTEM_PROMPT,
+        instructions: SYSTEM_PROMPT + (language === "en" ? "\\nIMPORTANT: Respond entirely in English, including all headings and safety advice." : language === "kk" ? "\\nМАҢЫЗДЫ: Толық жауапты қазақ тілінде бер. Барлық тақырыптар мен қауіпсіздік кеңестері қазақша болсын." : ""),
         input: `Автомобиль: ${vehicle}
 Пробег: ${mileage || "не указан"}
 Симптомы и обстоятельства:
