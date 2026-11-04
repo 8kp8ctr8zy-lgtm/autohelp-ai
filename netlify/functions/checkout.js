@@ -2,7 +2,7 @@
 const SUPABASE_URL='https://qhhccricgwdkpnlmazed.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_Ntim2FW-MYjti8HiaCtWEg_su1qeDpj';
 const DEFAULT_CHECKOUT_URL='https://autohelp-ai.lemonsqueezy.com/checkout/buy/8baac202-95f1-4b01-abb5-e3050d83f4bd';
-exports.handler=async(event)=>{
+export const handler=async(event)=>{
  if(event.httpMethod!=='POST')return {statusCode:405,body:JSON.stringify({error:'Method not allowed'})};
  const token=(event.headers.authorization||event.headers.Authorization||'').match(/^Bearer (.+)$/i)?.[1];
  if(!token)return {statusCode:401,body:JSON.stringify({error:'Войди в аккаунт'})};
