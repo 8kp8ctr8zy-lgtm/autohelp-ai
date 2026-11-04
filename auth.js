@@ -169,7 +169,7 @@ async function refreshServiceRecords(user){
  notices.push(name+': '+(delta<=0?'пора проверить ТО (ориентир '+upcoming.next_service_km+' км)':'до следующего ТО около '+delta+' км'));
  }
  reminders.textContent=notices.length?'🔔 Напоминания по пробегу (при открытии гаража): '+notices.join(' · '):'Напоминания появятся после указания текущего пробега и следующего ТО.';
- if(notices.length&&Notification.permission==='granted'&&localStorage.getItem('autohelp_service_alerts')==='yes'){const message=notices.join(' · ');const key='autohelp_alert_'+user.id;const previous=localStorage.getItem(key);if(previous!==message){new Notification('AutoHelp AI: техническое обслуживание',{body:message.slice(0,200)});localStorage.setItem(key,message)}}
+ if(notices.length&&'Notification' in window&&Notification.permission==='granted'&&localStorage.getItem('autohelp_service_alerts')==='yes'){const message=notices.join(' · ');const key='autohelp_alert_'+user.id;const previous=localStorage.getItem(key);if(previous!==message){new Notification('AutoHelp AI: техническое обслуживание',{body:message.slice(0,200)});localStorage.setItem(key,message)}}
  }
 
  for(const record of data){
@@ -242,7 +242,8 @@ window.autohelpRegisterPush=async()=>{
  const bytes=Uint8Array.from(atob(keyData.publicKey.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
  const subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:bytes});
  const json=subscription.toJSON();
- const {error}=await client.from('push_subscriptions').upsert({user_id:user.id,endpoint:json.endpoint,p256dh:json.keys.p256dh,auth_secret:json.keys.auth},{onConflict:'endpoint'});
+ const {error}=await client.from('push_subscriptions').insert({user_id:user.id,endpoint:json.endpoint,p256dh:json.keys.p256dh,auth_secret:json.keys.auth});
+ if(error?.code==='23505'){alert('Это устройство уже зарегистрировано для push.');return}
  if(error)throw Error(error.message);
  alert('Устройство зарегистрировано для push. Доставка напоминаний заработает после включения серверной рассылки.');
  }catch(error){alert('Не удалось подключить push: '+error.message)}
