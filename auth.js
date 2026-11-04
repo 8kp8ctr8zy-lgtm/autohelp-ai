@@ -27,6 +27,7 @@ function updateUser(user) {
   status.textContent = user ? 'Вы вошли в AutoHelp AI.' : 'Войди, чтобы пользоваться личным кабинетом.';
   void refreshProStatus(user);
   void refreshAccountData(user);
+  void window.autohelpRefreshQuota?.();
 }
 window.autohelpSignIn = async (provider) => {
   if (!client) return showError('Вход пока не подключён. Сначала настрой Supabase.');
