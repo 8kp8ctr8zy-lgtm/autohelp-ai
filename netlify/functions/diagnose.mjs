@@ -1,3 +1,4 @@
+const LANGUAGE_NAMES={"ru":"Русский","en":"English","kk":"Қазақша","es":"Español","fr":"Français","de":"Deutsch","pt":"Português","it":"Italiano","zh":"中文","ja":"日本語","ko":"한국어","ar":"العربية","hi":"हिन्दी","bn":"বাংলা","ur":"اردو","pa":"ਪੰਜਾਬੀ","tr":"Türkçe","vi":"Tiếng Việt","th":"ไทย","id":"Bahasa Indonesia","ms":"Bahasa Melayu","fa":"فارسی","sw":"Kiswahili","ta":"தமிழ்","te":"తెలుగు","mr":"मराठी","gu":"ગુજરાતી","kn":"ಕನ್ನಡ","ml":"മലയാളം","or":"ଓଡ଼ିଆ","ne":"नेपाली","si":"සිංහල","my":"မြန်မာဘာသာ","km":"ខ្មែរ","lo":"ລາວ","mn":"Монгол","uz":"Oʻzbek","tg":"Тоҷикӣ","ky":"Кыргызча","tk":"Türkmençe","az":"Azərbaycanca","hy":"Հայերեն","ka":"ქართული","he":"עברית","el":"Ελληνικά","nl":"Nederlands","pl":"Polski","uk":"Українська","be":"Беларуская","cs":"Čeština","sk":"Slovenčina","hu":"Magyar","ro":"Română","bg":"Български","sr":"Српски","hr":"Hrvatski","bs":"Bosanski","sl":"Slovenščina","sq":"Shqip","mk":"Македонски","sv":"Svenska","no":"Norsk","da":"Dansk","fi":"Suomi","is":"Íslenska","et":"Eesti","lv":"Latviešu","lt":"Lietuvių","ga":"Gaeilge","cy":"Cymraeg","mt":"Malti","eu":"Euskara","ca":"Català","gl":"Galego","af":"Afrikaans","am":"አማርኛ","om":"Afaan Oromoo","so":"Soomaali","ha":"Hausa","yo":"Yorùbá","ig":"Igbo","zu":"isiZulu","xh":"isiXhosa","st":"Sesotho","ny":"Chichewa","rw":"Kinyarwanda","mg":"Malagasy","sn":"chiShona","ps":"پښتو","ku":"Kurdî","sd":"سنڌي","ug":"ئۇيغۇرچە","bo":"བོད་སྐད་","fil":"Filipino","jv":"Basa Jawa","su":"Basa Sunda","ceb":"Cebuano","mi":"Te Reo Māori","ht":"Kreyòl ayisyen","lb":"Lëtzebuergesch"};
 const SYSTEM_PROMPT = `Ты — AUTOHELP AI, автомобильный технический помощник. Отвечай на русском языке, понятно и структурированно.
 
 ПРАВИЛА ДИАГНОСТИКИ:
@@ -46,7 +47,7 @@ export default async (request) => {
     return new Response(JSON.stringify({ error: "Некорректные данные." }), { status: 400, headers });
   }
 
-  const language = ["ru", "kk", "en"].includes(body.language) ? body.language : "ru";
+  const language = typeof body.language === "string" && Object.hasOwn(LANGUAGE_NAMES,body.language) ? body.language : "ru";
   const vehicle = typeof body.vehicle === "string" ? body.vehicle.trim() : "";
   const mileage = typeof body.mileage === "string" ? body.mileage.trim() : "";
   const symptoms = typeof body.symptoms === "string" ? body.symptoms.trim() : "";
@@ -68,7 +69,7 @@ export default async (request) => {
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        instructions: SYSTEM_PROMPT + (language === "en" ? "\\nIMPORTANT: Respond entirely in English, including all headings and safety advice." : language === "kk" ? "\\nМАҢЫЗДЫ: Толық жауапты қазақ тілінде бер. Барлық тақырыптар мен қауіпсіздік кеңестері қазақша болсын." : ""),
+        instructions: SYSTEM_PROMPT + `\nIMPORTANT: Respond exclusively in ${LANGUAGE_NAMES[language]} (language code ${language}). Translate all headings, safety guidance and questions into that language. Preserve OBD codes unchanged.`,
         input: `Автомобиль: ${vehicle}
 Пробег: ${mileage || "не указан"}
 Симптомы и обстоятельства:
