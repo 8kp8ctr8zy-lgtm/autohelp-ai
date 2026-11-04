@@ -89,7 +89,8 @@ async function refreshAccountData(user) {
   const summary=document.createElement('summary');summary.textContent=h.vehicle+' · '+new Date(h.created_at).toLocaleDateString('ru-RU');
   const symptom=document.createElement('p');symptom.textContent='Симптомы: '+h.symptoms;
   const answer=document.createElement('p');answer.style.whiteSpace='pre-wrap';answer.textContent=h.answer;
-  const del=document.createElement('button');del.className='back';del.textContent='Удалить запись';del.onclick=async()=>{if(!confirm('Удалить запись диагностики?'))return;const {error}=await client.from('diagnostic_history').delete().eq('id',h.id).eq('user_id',user.id);if(error)alert(error.message);else refreshAccountData(user)};
+  const edit=document.createElement('button');edit.className='back';edit.textContent='Изменить';edit.onclick=()=>window.autohelpEditService(record);
+ const del=document.createElement('button');del.className='back';del.textContent='Удалить запись';del.onclick=async()=>{if(!confirm('Удалить запись диагностики?'))return;const {error}=await client.from('diagnostic_history').delete().eq('id',h.id).eq('user_id',user.id);if(error)alert(error.message);else refreshAccountData(user)};
   item.append(summary,symptom,answer,del);historyList.append(item);
  }
 }
@@ -158,7 +159,7 @@ async function refreshServiceRecords(user){
  for(const record of data){if(!byVehicle.has(record.vehicle_id))byVehicle.set(record.vehicle_id,[]);byVehicle.get(record.vehicle_id).push(record)}
  const notices=[];
  for(const [id,records] of byVehicle){
- const current=Math.max(...records.map(x=>x.odometer_km).filter(Number.isFinite),0);
+ const local=Number(localStorage.getItem('autohelp_current_mileage_'+user.id+'_'+id));const current=Math.max(...records.map(x=>x.odometer_km).filter(Number.isFinite),Number.isFinite(local)?local:0,0);
  if(!current)continue;
  const upcoming=records.filter(x=>Number.isFinite(x.next_service_km)&&x.next_service_km>=0).sort((a,b)=>b.service_date.localeCompare(a.service_date))[0];
  if(!upcoming)continue;
@@ -175,7 +176,7 @@ async function refreshServiceRecords(user){
  title.textContent=(vehicle?.name||'Автомобиль')+' · '+record.service_date+' · '+record.description;
  const details=document.createElement('p');details.textContent=[record.odometer_km!=null?'Пробег: '+record.odometer_km+' км':'',record.cost!=null?'Стоимость: '+record.cost+' '+record.currency:'',record.next_service_km!=null?'Следующее ТО: '+record.next_service_km+' км':''].filter(Boolean).join(' · ');
  const del=document.createElement('button');del.className='back';del.textContent='Удалить запись';del.onclick=async()=>{if(!confirm('Удалить запись?'))return;const {error}=await client.from('maintenance_records').delete().eq('id',record.id).eq('user_id',user.id);if(error)alert(error.message);else void refreshServiceRecords(user)};
- row.append(title,details,del);list.append(row)
+ row.append(title,details,edit,del);list.append(row)
  }
 }
 window.autohelpAddService=async()=>{
@@ -187,7 +188,30 @@ window.autohelpAddService=async()=>{
  if(!id||!description||description.length>500)return alert('Выбери автомобиль и опиши обслуживание.');
  if([odometer_km,next_service_km].some(v=>v!==null&&(!Number.isInteger(v)||v<0||v>3000000))||cost!==null&&(!Number.isFinite(cost)||cost<0))return alert('Проверь пробег и стоимость.');
  const currency=localStorage.getItem('autohelp_currency')||'KZT';
- const {error}=await client.from('maintenance_records').insert({user_id:user.id,vehicle_id:id,description,service_date:date||new Date().toISOString().slice(0,10),odometer_km,cost,currency,next_service_km});
+ const payload={vehicle_id:id,description,service_date:date||new Date().toISOString().slice(0,10),odometer_km,cost,next_service_km};
+ const {error}=window.autohelpEditingServiceId?await client.from('maintenance_records').update({...payload,updated_at:new Date().toISOString()}).eq('id',window.autohelpEditingServiceId).eq('user_id',user.id):await client.from('maintenance_records').insert({...payload,user_id:user.id,currency});
  const status=document.getElementById('service_status');if(error){status.textContent='Ошибка сохранения: '+error.message;return}
- status.textContent='Обслуживание сохранено.';document.getElementById('service_description').value='';void refreshServiceRecords(user);
+ status.textContent='Обслуживание сохранено.';window.autohelpCancelServiceEdit();void refreshServiceRecords(user);
+};
+
+window.autohelpEditService=(record)=>{
+ window.autohelpEditingServiceId=record.id;
+ const values={service_vehicle:record.vehicle_id,service_date:record.service_date,service_odometer:record.odometer_km,service_description:record.description,service_cost:record.cost,service_next_km:record.next_service_km};
+ for(const [id,value] of Object.entries(values)){const el=document.getElementById(id);if(el)el.value=value??''}
+ document.getElementById('service_submit').textContent='Сохранить изменения';
+ document.getElementById('service_cancel_edit').classList.remove('hidden');
+ document.getElementById('service_description').focus();
+};
+window.autohelpCancelServiceEdit=()=>{
+ window.autohelpEditingServiceId=null;
+ for(const id of ['service_date','service_odometer','service_description','service_cost','service_next_km'])document.getElementById(id).value='';
+ document.getElementById('service_submit').textContent='Сохранить обслуживание';
+ document.getElementById('service_cancel_edit').classList.add('hidden');
+};
+window.autohelpSaveCurrentMileage=async()=>{
+ const id=document.getElementById('service_vehicle').value,value=Number(document.getElementById('garage_current_odometer').value),status=document.getElementById('garage_mileage_status');
+ if(!id||!document.getElementById('garage_current_odometer').value||!Number.isInteger(value)||value<0||value>3000000){status.textContent='Укажи корректный пробег и автомобиль.';return}
+ const {data:{user}}=await client.auth.getUser();if(!user){status.textContent='Войди в аккаунт.';return}
+ const key='autohelp_current_mileage_'+user.id+'_'+id;
+ try{localStorage.setItem(key,String(value));status.textContent='Текущий пробег сохранён на этом устройстве: '+value+' км.';void refreshServiceRecords(user)}catch{status.textContent='Не удалось сохранить пробег на устройстве.'}
 };
