@@ -2,14 +2,14 @@
 // Configure LEMONSQUEEZY_WEBHOOK_SECRET in Netlify and the same secret in Lemon Squeezy.
 // Subscription access must NOT be granted until the event is linked to an authenticated user
 // and persisted in a database. This endpoint only verifies and acknowledges notifications.
-const crypto = require('node:crypto');
+import crypto from 'node:crypto';
 const supported = new Set([
   'subscription_created', 'subscription_updated', 'subscription_cancelled',
   'subscription_resumed', 'subscription_expired', 'subscription_paused',
   'subscription_unpaused', 'subscription_payment_success',
   'subscription_payment_failed', 'subscription_payment_recovered'
 ]);
-exports.handler = async (event) => {
+export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers: { Allow: 'POST' }, body: 'Method not allowed' };
   }
