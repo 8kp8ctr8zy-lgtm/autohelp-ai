@@ -169,6 +169,7 @@ async function refreshServiceRecords(user){
  notices.push(name+': '+(delta<=0?'пора проверить ТО (ориентир '+upcoming.next_service_km+' км)':'до следующего ТО около '+delta+' км'));
  }
  reminders.textContent=notices.length?'🔔 Напоминания по пробегу (при открытии гаража): '+notices.join(' · '):'Напоминания появятся после указания текущего пробега и следующего ТО.';
+ if(notices.length&&Notification.permission==='granted'&&localStorage.getItem('autohelp_service_alerts')==='yes'){const message=notices.join(' · ');const key='autohelp_alert_'+user.id;const previous=localStorage.getItem(key);if(previous!==message){new Notification('AutoHelp AI: техническое обслуживание',{body:message.slice(0,200)});localStorage.setItem(key,message)}}
  }
 
  for(const record of data){
@@ -217,4 +218,14 @@ window.autohelpSaveCurrentMileage=async()=>{
  if(error){status.textContent='Ошибка сохранения: '+error.message;return}
  const vehicle=window.autohelpGarage?.find(v=>v.id===id);if(vehicle)vehicle.current_odometer_km=value;
  status.textContent='Пробег сохранён в аккаунте: '+value+' км. Доступен на других устройствах.';void refreshServiceRecords(user);
+};
+
+window.autohelpEnableServiceNotifications=async()=>{
+ if(!('Notification' in window))return alert('На этом устройстве уведомления браузера недоступны. Напоминания останутся в гараже.');
+ if(!window.isSecureContext)return alert('Для уведомлений требуется HTTPS.');
+ try{
+ const permission=await Notification.requestPermission();
+ if(permission==='granted'){localStorage.setItem('autohelp_service_alerts','yes');alert('Разрешение получено. Уведомления могут появляться при открытии гаража. Фоновые push пока не работают.');const {data:{user}}=await client.auth.getUser();if(user)void refreshServiceRecords(user)}
+ else alert('Уведомления не разрешены. Напоминания останутся в гараже.');
+ }catch{alert('Браузер не разрешил включить уведомления.')}
 };
