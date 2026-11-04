@@ -4,12 +4,27 @@ const guest = document.getElementById('auth_guest');
 const member = document.getElementById('auth_member');
 const email = document.getElementById('auth_email');
 let client;
+let subscriptionRequest = 0;
+async function refreshProStatus(user) {
+  const target = document.getElementById('pro_status');
+  if (!target) return;
+  const request = ++subscriptionRequest;
+  if (!user || !client) { target.textContent = 'PRO: войдите, чтобы проверить подписку'; return; }
+  target.textContent = 'PRO: проверяем подписку…';
+  const { data, error } = await client.from('pro_subscriptions').select('status,ends_at,renews_at').eq('user_id',user.id);
+  if (request !== subscriptionRequest) return;
+  if (error) { target.textContent = 'PRO: не удалось проверить подписку'; return; }
+  const active = (data || []).some(s => ['active','on_trial'].includes(s.status) && (!s.ends_at || new Date(s.ends_at).getTime() > Date.now()));
+  target.textContent = active ? '⭐ PRO активен' : 'PRO не активен — доступна бесплатная версия';
+}
+
 function showError(message) { status.textContent = message; }
 function updateUser(user) {
   guest.classList.toggle('hidden', !!user);
   member.classList.toggle('hidden', !user);
   email.textContent = user?.email || 'Авторизован';
   status.textContent = user ? 'Вы вошли в AutoHelp AI.' : 'Войди, чтобы пользоваться личным кабинетом.';
+  void refreshProStatus(user);
 }
 window.autohelpSignIn = async (provider) => {
   if (!client) return showError('Вход пока не подключён. Сначала настрой Supabase.');
