@@ -40,9 +40,9 @@ export default async (request) => {
   let body;
   try {
     const size = Number(request.headers.get("content-length") || 0);
-    if (size > 12000) return new Response(JSON.stringify({error:"Запрос слишком большой."}),{status:413,headers});
+    if (size > 1600000) return new Response(JSON.stringify({error:"Запрос слишком большой."}),{status:413,headers});
     const raw = await request.text();
-    if (raw.length > 12000) return new Response(JSON.stringify({error:"Запрос слишком большой."}),{status:413,headers});
+    if (raw.length > 1600000) return new Response(JSON.stringify({error:"Запрос слишком большой."}),{status:413,headers});
     body = JSON.parse(raw);
     if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("Invalid body");
   } catch {
@@ -53,6 +53,8 @@ export default async (request) => {
   const vehicle = typeof body.vehicle === "string" ? body.vehicle.trim() : "";
   const mileage = typeof body.mileage === "string" ? body.mileage.trim() : "";
   const symptoms = typeof body.symptoms === "string" ? body.symptoms.trim() : "";
+  const photo = typeof body.photo === "string" ? body.photo : "";
+  if(photo && (!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(photo) || photo.length > 1400000)) return new Response(JSON.stringify({error:"Недопустимый формат или размер фотографии."}),{status:413,headers});
 
   if (vehicle.length > 160 || mileage.length > 40 || symptoms.length > 3000) {
     return new Response(JSON.stringify({error:"Превышена допустимая длина текста."}),{status:413,headers});
@@ -89,10 +91,7 @@ export default async (request) => {
       body: JSON.stringify({
         model: "gpt-4.1-mini",
         instructions: SYSTEM_PROMPT + `\nIMPORTANT: Respond exclusively in ${LANGUAGE_NAMES[language]} (language code ${language}). Translate all headings, safety guidance and questions into that language. Preserve OBD codes unchanged.`,
-        input: `Автомобиль: ${vehicle}
-Пробег: ${mileage || "не указан"}
-Симптомы и обстоятельства:
-${symptoms}`,
+        input: [{role:"user",content:[{type:"input_text",text:`Автомобиль: ${vehicle}\nПробег: ${mileage || "не указан"}\nСимптомы и обстоятельства:\n${symptoms}\n${photo?"Проанализируй видимые детали изображения, не делай выводов о скрытых поломках.":"Фотография не предоставлена."}`} ,...(photo?[{type:"input_image",image_url:photo,detail:"low"}]:[])]}],
         max_output_tokens: 1100,
         store: false
       })
