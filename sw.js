@@ -1,4 +1,4 @@
-const CACHE = 'autohelp-pwa-v2';
+const CACHE = 'autohelp-pwa-v3';
 const SHELL = ['/', '/manifest.webmanifest', '/icons/icon.svg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -10,6 +10,7 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
   if (new URL(request.url).pathname.startsWith('/.netlify/')) return;
+  if (request.headers.has('authorization') || request.headers.has('range')) return;
   if (request.mode === 'navigate') {
     event.respondWith(fetch(request).then(response=>{if(response.ok){const copy=response.clone();event.waitUntil(caches.open(CACHE).then(cache=>cache.put('/',copy)))}return response}).catch(() => caches.match('/')));
     return;
