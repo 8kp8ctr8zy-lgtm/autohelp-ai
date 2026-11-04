@@ -68,14 +68,14 @@ async function refreshAccountData(user) {
  const vehicleList = document.getElementById('vehicle_list');
  const historyList = document.getElementById('history_list');
  if (!vehicleList || !historyList) return;
- if (!user || !client) { updateGaragePicker([]); vehicleList.replaceChildren(); historyList.replaceChildren(); accountMessage('vehicle_message','Войди, чтобы сохранять автомобили.'); accountMessage('history_message','Войди, чтобы видеть историю.'); return; }
+ if (!user || !client) { updateGaragePicker([]); updateServicePicker([]); document.getElementById("service_list")?.replaceChildren(); vehicleList.replaceChildren(); historyList.replaceChildren(); accountMessage('vehicle_message','Войди, чтобы сохранять автомобили.'); accountMessage('history_message','Войди, чтобы видеть историю.'); return; }
  accountMessage('vehicle_message','Загружаем автомобили…'); accountMessage('history_message','Загружаем историю…');
  const [vehicles,history] = await Promise.all([
   client.from('vehicles').select('id,name,year').eq('user_id',user.id).order('created_at',{ascending:false}).limit(30),
   client.from('diagnostic_history').select('id,vehicle,symptoms,answer,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20)
  ]);
  if(request !== accountRequest) return;
- vehicleList.replaceChildren(); historyList.replaceChildren(); updateGaragePicker(vehicles.data||[]);
+ vehicleList.replaceChildren(); historyList.replaceChildren(); updateGaragePicker(vehicles.data||[]);updateServicePicker(vehicles.data||[]);void refreshServiceRecords(user);
  accountMessage('vehicle_message',vehicles.error?'Ошибка загрузки автомобилей':vehicles.data.length?'':'Автомобилей пока нет.');
  accountMessage('history_message',history.error?'Ошибка загрузки истории':history.data.length?'':'История пока пустая.');
  for(const v of vehicles.data || []) {
@@ -130,3 +130,38 @@ function updateGaragePicker(vehicles) {
  for(const v of vehicles){const opt=document.createElement('option');opt.value=v.id;opt.textContent=v.name+(v.year?' · '+v.year:'');picker.append(opt);}
  if(vehicles.some(v=>v.id===current))picker.value=current;
 }
+
+function updateServicePicker(vehicles){
+ const select=document.getElementById('service_vehicle');if(!select)return;
+ const previous=select.value;select.replaceChildren();
+ for(const v of vehicles){const option=document.createElement('option');option.value=v.id;option.textContent=v.name+(v.year?' · '+v.year:'');select.append(option)}
+ if(vehicles.some(v=>v.id===previous))select.value=previous;
+}
+async function refreshServiceRecords(user){
+ const list=document.getElementById('service_list'),status=document.getElementById('service_status');if(!list)return;
+ if(!user){list.replaceChildren();status.textContent='Войди для просмотра истории обслуживания.';return}
+ const {data,error}=await client.from('maintenance_records').select('id,vehicle_id,service_date,odometer_km,description,cost,currency,next_service_km').eq('user_id',user.id).order('service_date',{ascending:false}).limit(100);
+ list.replaceChildren();if(error){status.textContent='Не удалось загрузить обслуживание: '+error.message;return}
+ status.textContent=data.length?'':'Пока нет записей об обслуживании.';
+ for(const record of data){
+ const row=document.createElement('details');row.className='ai-section';
+ const title=document.createElement('summary');const vehicle=window.autohelpGarage?.find(v=>v.id===record.vehicle_id);
+ title.textContent=(vehicle?.name||'Автомобиль')+' · '+record.service_date+' · '+record.description;
+ const details=document.createElement('p');details.textContent=[record.odometer_km!=null?'Пробег: '+record.odometer_km+' км':'',record.cost!=null?'Стоимость: '+record.cost+' '+record.currency:'',record.next_service_km!=null?'Следующее ТО: '+record.next_service_km+' км':''].filter(Boolean).join(' · ');
+ const del=document.createElement('button');del.className='back';del.textContent='Удалить запись';del.onclick=async()=>{if(!confirm('Удалить запись?'))return;const {error}=await client.from('maintenance_records').delete().eq('id',record.id).eq('user_id',user.id);if(error)alert(error.message);else void refreshServiceRecords(user)};
+ row.append(title,details,del);list.append(row)
+ }
+}
+window.autohelpAddService=async()=>{
+ if(!client)return alert('Войди в аккаунт.');
+ const {data:{user}}=await client.auth.getUser();if(!user)return alert('Войди в аккаунт.');
+ const id=document.getElementById('service_vehicle').value,description=document.getElementById('service_description').value.trim(),date=document.getElementById('service_date').value;
+ const numeric=(key)=>{const v=document.getElementById(key).value.trim();return v===''?null:Number(v)};
+ const odometer_km=numeric('service_odometer'),cost=numeric('service_cost'),next_service_km=numeric('service_next_km');
+ if(!id||!description||description.length>500)return alert('Выбери автомобиль и опиши обслуживание.');
+ if([odometer_km,next_service_km].some(v=>v!==null&&(!Number.isInteger(v)||v<0||v>3000000))||cost!==null&&(!Number.isFinite(cost)||cost<0))return alert('Проверь пробег и стоимость.');
+ const currency=localStorage.getItem('autohelp_currency')||'KZT';
+ const {error}=await client.from('maintenance_records').insert({user_id:user.id,vehicle_id:id,description,service_date:date||new Date().toISOString().slice(0,10),odometer_km,cost,currency,next_service_km});
+ const status=document.getElementById('service_status');if(error){status.textContent='Ошибка сохранения: '+error.message;return}
+ status.textContent='Обслуживание сохранено.';document.getElementById('service_description').value='';void refreshServiceRecords(user);
+};
