@@ -26,7 +26,7 @@ const SYSTEM_PROMPT = `Ты — AUTOHELP AI, автомобильный техн
 Пиши конкретно, без повторов и длинных общих лекций. При поступлении новых сведений пересматривай причины с учётом всей информации.`;
 
 export default async (request) => {
-  const headers = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" };
+  const headers = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options":"nosniff" };
 
   if (request.method !== "POST") {
     return new Response(JSON.stringify({ error: "Используй POST-запрос." }), { status: 405, headers });
@@ -96,18 +96,18 @@ ${symptoms}`,
       })
     });
 
-    const result = await response.json();
+    const result = await response.json().catch(() => ({}));
 
     if (!response.ok) {
       return new Response(JSON.stringify({
-        error: result?.error?.message || "Ошибка AI API. Проверь доступ и оплату."
+        error: response.status===429 ? "AI временно перегружен. Попробуй позже." : "Сервис AI временно недоступен. Попробуй позже."
       }), { status: 502, headers });
     }
 
-    const answer = (result.output || [])
-      .flatMap(item => item.content || [])
+    const answer = (Array.isArray(result.output) ? result.output : [])
+      .flatMap(item => Array.isArray(item.content) ? item.content : [])
       .filter(part => part.type === "output_text")
-      .map(part => part.text)
+      .map(part => typeof part.text === "string" ? part.text : "")
       .join("\n")
       .trim();
 
