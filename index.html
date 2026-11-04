@@ -232,10 +232,4 @@ async function autohelpUsePreviousDiagnosis(){
  input.value+=addition;status.textContent='Добавлена история '+data.length+' обращений. Проверь текст перед отправкой.';
  }catch(e){status.textContent='Не удалось загрузить историю: '+e.message}
 }
-</script></body></html>,EUR:'€',RUB:'₽',GBP:'£',UAH:'₴',TRY:'₺',AED:'د.إ',CNY:'¥',INR:'₹'};
-function autohelpCurrencySymbol(){return AUTOHELP_CURRENCIES[localStorage.getItem('autohelp_currency')||'KZT']||'₸'}
-function autohelpSetCurrency(code){if(!AUTOHELP_CURRENCIES[code])return;localStorage.setItem('autohelp_currency',code);autohelpUpdateCurrencyLabels();['f_out','t_out','r_out','s_out'].forEach(id=>{const el=document.getElementById(id);if(el){el.style.display='none';el.innerHTML=''}})}
-function autohelpUpdateCurrencyLabels(){const code=localStorage.getItem('autohelp_currency')||'KZT',sym=autohelpCurrencySymbol(),select=document.getElementById('site_currency');if(select)select.value=code;document.querySelectorAll('label').forEach(el=>{if(el.dataset.originalCurrencyLabel===undefined&&el.textContent.includes('₸'))el.dataset.originalCurrencyLabel=el.textContent;if(el.dataset.originalCurrencyLabel!==undefined)el.textContent=el.dataset.originalCurrencyLabel.replaceAll('₸',sym)});}
-if(!localStorage.getItem('autohelp_currency')){const region=(navigator.language||'').split('-')[1]?.toUpperCase();const map={KZ:'KZT',US:'USD',GB:'GBP',RU:'RUB',UA:'UAH',TR:'TRY',AE:'AED',CN:'CNY',IN:'INR',DE:'EUR',FR:'EUR',IT:'EUR',ES:'EUR',RO:'EUR'};localStorage.setItem('autohelp_currency',map[region]||'USD')}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',autohelpUpdateCurrencyLabels);else autohelpUpdateCurrencyLabels();
 </script></body></html>
