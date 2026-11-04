@@ -143,6 +143,32 @@ async function refreshServiceRecords(user){
  const {data,error}=await client.from('maintenance_records').select('id,vehicle_id,service_date,odometer_km,description,cost,currency,next_service_km').eq('user_id',user.id).order('service_date',{ascending:false}).limit(100);
  list.replaceChildren();if(error){status.textContent='Не удалось загрузить обслуживание: '+error.message;return}
  status.textContent=data.length?'':'Пока нет записей об обслуживании.';
+ const summary=document.getElementById('service_summary'),reminders=document.getElementById('service_reminders');
+ if(summary){
+ summary.replaceChildren();const title=document.createElement('h3');title.textContent='💰 Расходы на обслуживание';summary.append(title);
+ const totals=new Map();
+ for(const record of data){if(record.cost===null)continue;const key=record.vehicle_id+'|'+record.currency;totals.set(key,(totals.get(key)||0)+Number(record.cost))}
+ if(!totals.size){const p=document.createElement('p');p.textContent='Добавь стоимость ремонта, чтобы увидеть итог.';summary.append(p)}
+ for(const [key,total] of totals){const [id,currency]=key.split('|');const name=window.autohelpGarage?.find(v=>v.id===id)?.name||'Автомобиль';const row=document.createElement('div');row.className='metric';const left=document.createElement('span');left.textContent=name+' · '+currency;const right=document.createElement('b');right.textContent=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(total)+' '+currency;row.append(left,right);summary.append(row)}
+ const note=document.createElement('p');note.className='notice';note.textContent='Итоги по последним 100 записям. Разные валюты не суммируются и не конвертируются.';summary.append(note)
+ }
+ if(reminders){
+ reminders.replaceChildren();
+ const byVehicle=new Map();
+ for(const record of data){if(!byVehicle.has(record.vehicle_id))byVehicle.set(record.vehicle_id,[]);byVehicle.get(record.vehicle_id).push(record)}
+ const notices=[];
+ for(const [id,records] of byVehicle){
+ const current=Math.max(...records.map(x=>x.odometer_km).filter(Number.isFinite),0);
+ if(!current)continue;
+ const upcoming=records.filter(x=>Number.isFinite(x.next_service_km)&&x.next_service_km>=0).sort((a,b)=>b.service_date.localeCompare(a.service_date))[0];
+ if(!upcoming)continue;
+ const delta=upcoming.next_service_km-current;
+ const name=window.autohelpGarage?.find(v=>v.id===id)?.name||'Автомобиль';
+ notices.push(name+': '+(delta<=0?'пора проверить ТО (ориентир '+upcoming.next_service_km+' км)':'до следующего ТО около '+delta+' км'));
+ }
+ reminders.textContent=notices.length?'🔔 Напоминания по пробегу (при открытии гаража): '+notices.join(' · '):'Напоминания появятся после указания текущего пробега и следующего ТО.';
+ }
+
  for(const record of data){
  const row=document.createElement('details');row.className='ai-section';
  const title=document.createElement('summary');const vehicle=window.autohelpGarage?.find(v=>v.id===record.vehicle_id);
