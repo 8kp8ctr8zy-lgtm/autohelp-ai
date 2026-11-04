@@ -25,7 +25,7 @@ const SYSTEM_PROMPT = `Ты — AUTOHELP AI, автомобильный техн
 Пиши конкретно, без повторов и длинных общих лекций. При поступлении новых сведений пересматривай причины с учётом всей информации.`;
 
 export default async (request) => {
-  const headers = { "Content-Type": "application/json" };
+  const headers = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" };
 
   if (request.method !== "POST") {
     return new Response(JSON.stringify({ error: "Используй POST-запрос." }), { status: 405, headers });
@@ -38,15 +38,21 @@ export default async (request) => {
 
   let body;
   try {
+    const size = Number(request.headers.get("content-length") || 0);
+    if (size > 12000) return new Response(JSON.stringify({error:"Запрос слишком большой."}),{status:413,headers});
     body = await request.json();
+    if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("Invalid body");
   } catch {
     return new Response(JSON.stringify({ error: "Некорректные данные." }), { status: 400, headers });
   }
 
-  const vehicle = String(body.vehicle || "").trim().slice(0, 160);
-  const mileage = String(body.mileage || "").trim().slice(0, 40);
-  const symptoms = String(body.symptoms || "").trim().slice(0, 3000);
+  const vehicle = typeof body.vehicle === "string" ? body.vehicle.trim() : "";
+  const mileage = typeof body.mileage === "string" ? body.mileage.trim() : "";
+  const symptoms = typeof body.symptoms === "string" ? body.symptoms.trim() : "";
 
+  if (vehicle.length > 160 || mileage.length > 40 || symptoms.length > 3000) {
+    return new Response(JSON.stringify({error:"Превышена допустимая длина текста."}),{status:413,headers});
+  }
   if (!vehicle || !symptoms) {
     return new Response(JSON.stringify({ error: "Укажи автомобиль и симптомы." }), { status: 400, headers });
   }
@@ -54,6 +60,7 @@ export default async (request) => {
   try {
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
+      signal: AbortSignal.timeout(35000),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json"
@@ -94,9 +101,9 @@ ${symptoms}`,
       headers: { ...headers, "Cache-Control": "no-store" }
     });
 
-  } catch {
+  } catch (error) {
     return new Response(JSON.stringify({
-      error: "Не удалось связаться с AI-сервисом. Попробуй позже."
+      error: error?.name === "TimeoutError" ? "AI отвечает слишком долго. Попробуй ещё раз." : "Не удалось связаться с AI-сервисом. Попробуй позже."
     }), { status: 502, headers });
   }
 };
