@@ -59,6 +59,23 @@ export default async (request) => {
     return new Response(JSON.stringify({ error: "Укажи автомобиль и симптомы." }), { status: 400, headers });
   }
 
+  // Validate Supabase session and consume an atomic per-user daily quota before AI spending.
+  const token = request.headers.get("authorization")?.match(/^Bearer (.+)$/i)?.[1];
+  if (!token) return new Response(JSON.stringify({error:"Войди в аккаунт, чтобы пользоваться AI-диагностикой."}),{status:401,headers});
+  const supabaseUrl="https://qhhccricgwdkpnlmazed.supabase.co";
+  const publishableKey="sb_publishable_Ntim2FW-MYjti8HiaCtWEg_su1qeDpj";
+  const authHeaders={apikey:publishableKey,Authorization:"Bearer "+token};
+  try {
+    const userResponse=await fetch(supabaseUrl+"/auth/v1/user",{headers:authHeaders,signal:AbortSignal.timeout(8000)});
+    if(!userResponse.ok)return new Response(JSON.stringify({error:"Сессия истекла. Войди в аккаунт повторно."}),{status:401,headers});
+    const user=await userResponse.json();
+    if(!user?.id)return new Response(JSON.stringify({error:"Не удалось проверить аккаунт."}),{status:401,headers});
+    const quotaResponse=await fetch(supabaseUrl+"/rest/v1/rpc/consume_ai_quota",{method:"POST",headers:{...authHeaders,"Content-Type":"application/json"},body:"{}",signal:AbortSignal.timeout(8000)});
+    if(!quotaResponse.ok)return new Response(JSON.stringify({error:"Не удалось проверить лимит AI. Попробуй позже."}),{status:503,headers});
+    const quota=await quotaResponse.json();
+    if(!quota?.allowed)return new Response(JSON.stringify({error:"Дневной лимит AI исчерпан ("+quota.limit+" запросов). Попробуй завтра или перейди на PRO.",remaining:0,limit:quota.limit}),{status:429,headers});
+  }catch{return new Response(JSON.stringify({error:"Не удалось проверить аккаунт и лимит. Попробуй позже."}),{status:503,headers});}
+
   try {
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
