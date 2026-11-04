@@ -16,7 +16,7 @@ async function refreshProStatus(user) {
   if (error) { target.textContent = 'PRO: не удалось проверить подписку'; updatePlanDetails(null); return; }
   const active = (data || []).some(s => ['active','on_trial'].includes(s.status) && (!s.ends_at || new Date(s.ends_at).getTime() > Date.now()));
   target.textContent = active ? '⭐ PRO активен' : 'PRO не активен — доступна бесплатная версия';
-  updatePlanDetails(active ? (data||[]).find(s=>['active','on_trial'].includes(s.status)) : null);
+  updatePlanDetails(active ? (data||[]).find(s=>['active','on_trial'].includes(s.status) && (!s.ends_at || new Date(s.ends_at).getTime()>Date.now())) : null);
 }
 
 function showError(message) { status.textContent = message; }
