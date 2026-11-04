@@ -41,7 +41,9 @@ export default async (request) => {
   try {
     const size = Number(request.headers.get("content-length") || 0);
     if (size > 12000) return new Response(JSON.stringify({error:"Запрос слишком большой."}),{status:413,headers});
-    body = await request.json();
+    const raw = await request.text();
+    if (raw.length > 12000) return new Response(JSON.stringify({error:"Запрос слишком большой."}),{status:413,headers});
+    body = JSON.parse(raw);
     if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("Invalid body");
   } catch {
     return new Response(JSON.stringify({ error: "Некорректные данные." }), { status: 400, headers });
