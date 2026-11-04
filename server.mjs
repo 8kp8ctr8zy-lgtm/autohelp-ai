@@ -42,7 +42,7 @@ http.createServer(async (req,res)=>{
     const name=pathname==='/'?'/index.html':decodeURIComponent(pathname);
     const target=resolve(root,'.'+name);
     if(target!==root&&!target.startsWith(root+sep)) return send(res,403,'Forbidden','text/plain');
-    if(name.includes('..')||name.startsWith('/.git')||name.startsWith('/netlify/')||name.startsWith('/node_modules/')||name==='/package.json'||name==='/package-lock.json'||name==='/server.mjs'||name==='/netlify.toml') return send(res,404,'Not found','text/plain');
+    if(name.includes('..')||name.split('/').some(part=>part.startsWith('.')&&part.length>1)||name.startsWith('/.git')||name.startsWith('/netlify/')||name.startsWith('/node_modules/')||name==='/package.json'||name==='/package-lock.json'||name==='/server.mjs'||name==='/netlify.toml') return send(res,404,'Not found','text/plain');
     const info=await stat(target).catch(()=>null);
     if(!info?.isFile()) return send(res,404,'Not found','text/plain');
     const file=await readFile(target);
