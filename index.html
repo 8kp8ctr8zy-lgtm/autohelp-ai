@@ -89,7 +89,23 @@ input,textarea,select{min-height:46px;border-radius:12px;transition:border-color
 @media(min-width:700px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.tile{min-height:158px}.bottom{left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100% - 32px));bottom:15px;border:1px solid #31506b;border-radius:20px;padding:8px;box-shadow:0 12px 35px rgba(0,0,0,.3)}}
 @media(max-width:420px){header{gap:7px}.brand{font-size:16px}.brand small{font-size:8px}.lang-control{gap:3px;padding:3px}.lang-control input{width:67px!important;font-size:12px}.lang-control select{max-width:98px!important;font-size:12px}.tile{padding:15px 13px;min-height:133px}.tile b{font-size:14px}.tile small{font-size:11px}.bottom button{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.tile,.btn,.bottom button,input,select,textarea{transition:none!important}}
- .currency-control{margin:0;display:flex;align-items:center;gap:4px}.currency-control select{width:auto;max-width:112px;min-height:38px;padding:7px;font-size:13px;background:#12283a} @media(max-width:420px){.currency-control select{max-width:90px;font-size:12px}} </style></head><body>
+ .currency-control{margin:0;display:flex;align-items:center;gap:4px}.currency-control select{width:auto;max-width:112px;min-height:38px;padding:7px;font-size:13px;background:#12283a} @media(max-width:420px){.currency-control select{max-width:90px;font-size:12px}} 
+/* iPhone safe-area and narrow-screen layout repair */
+html{width:100%;max-width:100%;overflow-x:clip}
+body{width:100%;max-width:100%;min-width:0;overflow-x:clip}
+header{padding-top:calc(14px + env(safe-area-inset-top,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px}
+header .brand{grid-column:1/-1;min-width:0;white-space:normal;overflow-wrap:normal}
+header .brand small{white-space:normal}
+header .lang-control{grid-column:1;min-width:0;max-width:100%;justify-self:start;flex-wrap:nowrap}
+header .currency-control{grid-column:2;min-width:0;max-width:100%;justify-self:end}
+header .lang-control input{width:75px!important;max-width:25vw}
+header .lang-control select{width:110px;max-width:31vw!important}
+header .currency-control select{width:95px;max-width:26vw}
+main,main>section,.hero,.card,.grid,.tile{min-width:0;max-width:100%}
+.hero h1,.hero p,.card,.notice{overflow-wrap:break-word}
+.bottom{width:100%;max-width:100%;left:0;right:0}
+@media(max-width:390px){header{gap:7px}.lang-control input{width:58px!important}.lang-control select{max-width:28vw!important}.currency-control select{max-width:24vw}.brand{font-size:17px}}
+</style></head><body>
 <header><div class="brand">AUTOHELP <span style="color:#27baff">AI</span><small>YOUR VEHICLE. YOUR INTELLIGENCE.</small></div><label class="lang-control" for="site_language">🌐 <input id="site_language_search" type="search" aria-label="Search language" placeholder="🔎 Язык" oninput="autohelpFilterLanguages(this.value)"><select id="site_language" aria-label="Language / Тіл / Язык" onchange="autohelpSetLanguage(this.value)"></select><span id="language_search_hint" class="sr-only" aria-live="polite"></span></label><label class="currency-control" for="site_currency">💱 <select id="site_currency" aria-label="Валюта" onchange="autohelpSetCurrency(this.value)"><option value="KZT">KZT ₸</option><option value="USD">USD $</option><option value="EUR">EUR €</option><option value="RUB">RUB ₽</option><option value="GBP">GBP £</option><option value="UAH">UAH ₴</option><option value="TRY">TRY ₺</option><option value="AED">AED د.إ</option><option value="CNY">CNY ¥</option><option value="INR">INR ₹</option></select></label></header><main>
 <section id="home"><div class="hero"><small style="color:var(--cyan)">УНИВЕРСАЛЬНЫЙ АВТОМОБИЛЬНЫЙ ПОМОЩНИК</small><h1>Техника под контролем.<br>Решения — понятны.</h1><p>Инструменты для водителей, дальнобойщиков и автосервисов.</p></div><h2 class="section-title">Выбери инструмент</h2><div class="grid">
 <button class="tile" onclick="show('fuel')">⛽<b>Расход топлива</b><small>Стоимость поездки и цена километра</small></button><button class="tile" onclick="show('truck')">🚛<b>Грузовой помощник</b><small>Остаток топлива в двух баках</small></button><button class="tile" onclick="show('trip')">🛣️<b>Стоимость рейса</b><small>Топливо и расходы</small></button><button class="tile" onclick="show('repair')">🔧<b>Расчёт ремонта</b><small>Работы и запчасти</small></button><button class="tile" onclick="show('photo')">📷<b>Диагностика по фото</b><small>Подготовка снимка и описание симптомов</small></button><button class="tile" onclick="show('ai')">🤖<b>AI-диагностика</b><small>План проверок по симптомам</small></button><button class="tile" onclick="show('diagnostic')">🩺<b>Быстрая подсказка</b><small>Общие направления проверки</small></button><button class="tile" onclick="show('about')">📘<b>О сервисе</b><small>Возможности AUTOHELP AI</small></button></div><div class="card"><h2>⭐ AutoHelp AI PRO</h2><p class="sub">Подписка $9.99 в месяц. Оплата через Lemon Squeezy.</p><button class="btn" onclick="openProCheckout()">Оформить PRO</button><p class="notice">Для оплаты сначала войди в аккаунт. До завершения проверки покупай только в тестовом режиме.</p></div><div class="card"><b>MVP · BETA</b><p class="sub">Калькуляторы работают в браузере. AI-диагностика обрабатывает описание автомобиля и симптомов через серверную функцию.</p></div></section>
@@ -176,7 +192,7 @@ function autohelpTranslateUI(lang){
 }
 window.autohelpSetLanguage=lang=>{if(!Object.hasOwn(autohelpLanguages,lang))lang='ru';window.autohelpLanguage=lang;const search=document.getElementById('site_language_search');if(search)search.value='';try{localStorage.setItem('autohelp-language',lang)}catch{}autohelpTranslateUI(lang);if(document.getElementById('ai_quota_status')?.querySelector('.quota-meter'))void window.autohelpRefreshQuota?.()};
 window.addEventListener('DOMContentLoaded',()=>{let saved='ru';try{saved=localStorage.getItem('autohelp-language')||'ru'}catch{}window.autohelpSetLanguage(saved)});
-if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {})); }
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js?v=5').catch(() => {})); }
 window.addEventListener('DOMContentLoaded',()=>show('home'));
 </script><script type="module" src="/auth.js"></script><script>
 /* Currency controls change the unit of user-entered calculator prices; no exchange-rate conversion is implied. Checkout remains USD until the payment provider confirms otherwise. */
