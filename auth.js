@@ -25,6 +25,7 @@ function updateUser(user) {
   email.textContent = user?.email || 'Авторизован';
   status.textContent = user ? 'Вы вошли в AutoHelp AI.' : 'Войди, чтобы пользоваться личным кабинетом.';
   void refreshProStatus(user);
+  void refreshAccountData(user);
 }
 window.autohelpSignIn = async (provider) => {
   if (!client) return showError('Вход пока не подключён. Сначала настрой Supabase.');
@@ -57,3 +58,55 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     client.auth.onAuthStateChange((_event, session) => updateUser(session?.user || null));
   } catch (error) { showError('Ошибка подключения авторизации. Проверь настройки Supabase.'); }
 }
+
+let accountRequest = 0;
+function accountMessage(id, message) { const el = document.getElementById(id); if(el) el.textContent = message; }
+async function refreshAccountData(user) {
+ const request = ++accountRequest;
+ const vehicleList = document.getElementById('vehicle_list');
+ const historyList = document.getElementById('history_list');
+ if (!vehicleList || !historyList) return;
+ if (!user || !client) { vehicleList.replaceChildren(); historyList.replaceChildren(); accountMessage('vehicle_message','Войди, чтобы сохранять автомобили.'); accountMessage('history_message','Войди, чтобы видеть историю.'); return; }
+ accountMessage('vehicle_message','Загружаем автомобили…'); accountMessage('history_message','Загружаем историю…');
+ const [vehicles,history] = await Promise.all([
+  client.from('vehicles').select('id,name,year').eq('user_id',user.id).order('created_at',{ascending:false}).limit(30),
+  client.from('diagnostic_history').select('id,vehicle,symptoms,answer,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20)
+ ]);
+ if(request !== accountRequest) return;
+ vehicleList.replaceChildren(); historyList.replaceChildren();
+ accountMessage('vehicle_message',vehicles.error?'Ошибка загрузки автомобилей':vehicles.data.length?'':'Автомобилей пока нет.');
+ accountMessage('history_message',history.error?'Ошибка загрузки истории':history.data.length?'':'История пока пустая.');
+ for(const v of vehicles.data || []) {
+  const wrap=document.createElement('div');wrap.className='metric';
+  const name=document.createElement('span');name.textContent=v.name+(v.year?' · '+v.year:'');
+  const del=document.createElement('button');del.textContent='Удалить';del.className='back';del.onclick=async()=>{if(!confirm('Удалить автомобиль?'))return;const {error}=await client.from('vehicles').delete().eq('id',v.id).eq('user_id',user.id);if(error)alert(error.message);else refreshAccountData(user)};
+  wrap.append(name,del);vehicleList.append(wrap);
+ }
+ for(const h of history.data || []) {
+  const item=document.createElement('details');item.className='ai-section';
+  const summary=document.createElement('summary');summary.textContent=h.vehicle+' · '+new Date(h.created_at).toLocaleDateString('ru-RU');
+  const symptom=document.createElement('p');symptom.textContent='Симптомы: '+h.symptoms;
+  const answer=document.createElement('p');answer.style.whiteSpace='pre-wrap';answer.textContent=h.answer;
+  const del=document.createElement('button');del.className='back';del.textContent='Удалить запись';del.onclick=async()=>{if(!confirm('Удалить запись диагностики?'))return;const {error}=await client.from('diagnostic_history').delete().eq('id',h.id).eq('user_id',user.id);if(error)alert(error.message);else refreshAccountData(user)};
+  item.append(summary,symptom,answer,del);historyList.append(item);
+ }
+}
+window.autohelpSaveVehicle = async () => {
+ if(!client)return alert('Войди в аккаунт.');
+ const {data:{user}}=await client.auth.getUser();if(!user)return alert('Войди в аккаунт.');
+ const name=document.getElementById('vehicle_name').value.trim();
+ const raw=document.getElementById('vehicle_year').value.trim();
+ const year=raw?Number(raw):null;
+ if(!name || name.length>160 || (raw&&(!Number.isInteger(year)||year<1900||year>2100)))return alert('Укажи название и корректный год.');
+ const {error}=await client.from('vehicles').insert({user_id:user.id,name,year});
+ if(error)return alert('Ошибка сохранения: '+error.message);
+ document.getElementById('vehicle_name').value='';document.getElementById('vehicle_year').value='';
+ await refreshAccountData(user);
+};
+window.autohelpSaveDiagnosis = async (vehicle,mileage,symptoms,answer) => {
+ if(!client)return;
+ const {data:{user}}=await client.auth.getUser();if(!user)return;
+ const {error}=await client.from('diagnostic_history').insert({user_id:user.id,vehicle,mileage,symptoms,answer});
+ if(error){console.warn('History save failed',error.message);return;}
+ await refreshAccountData(user);
+};
