@@ -1,4 +1,4 @@
-const CACHE = 'autohelp-pwa-v4';
+const CACHE = 'autohelp-pwa-v5';
 const SHELL = ['/', '/manifest.webmanifest', '/icons/icon.svg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
